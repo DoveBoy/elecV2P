@@ -1,0 +1,32 @@
+# File: .github/workflows/repo-sync.yml
+name: sync-elecV2/elecV2P
+on:
+  schedule:
+  - cron:  "*/15 * * * *"
+  workflow_dispatch:
+  watch:
+    types: started
+  push:
+    branches: [sync]
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - name: repo-sync
+      uses: repo-sync/github-sync@v2
+      with:
+        source_repo: "https://github.com/elecV2/elecV2P.git"
+        source_branch: "master"
+        destination_branch: "master"
+        github_token: ${{ secrets.PAT }}
+    - name: Delete Workflow Runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ github.token }}
+        repository: ${{ github.repository }}
+        retain_days: 1
+        keep_minimum_runs: 0
